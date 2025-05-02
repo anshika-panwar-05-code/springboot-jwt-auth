@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PR Scanner</title>
+  <link rel="stylesheet" href="style1.css">
+  <style>
+    /* Basic Styles for a Modern UI */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+  
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+    }
+  
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+  
+    input, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+  
+    button {
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+    }
+  
+    button:hover {
+      background-color: #0056b3;
+    }
+  
+    #response {
+      margin-top: 20px;
+      text-align: center;
+      width: 80%;
+      padding: 20px;
+      background-color: #e9f7fd;
+      border-radius: 8px;
+      display: none;
+    }
+  
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+  
+    footer {
+      position: absolute;
+      bottom: 20px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #555;
+    }
+  
+  </style>
+</head>
+<body>
+
+  <h1>PR Code Scanner</h1>
+
+  <!-- PR Form -->
+  <form id="prForm">
+    <input type="text" id="repoOwner" placeholder="Repository Owner" required>
+    <input type="text" id="repoName" placeholder="Repository Name" required>
+    <input type="number" id="prNumber" placeholder="PR Number" required>
+    <button type="submit">Scan PR</button>
+  </form>
+
+  <!-- Response Section -->
+  <div id="response"></div>
+
+  <!-- <footer>
+    <p>&copy; 2025 PR Scanner. All rights reserved.</p>
+  </footer> -->
+
+  <script src="app.js"></script>
+  <script>
+    // JavaScript to handle the form submission and display the response
+    document.getElementById('prForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+  
+      const repoOwner = document.getElementById('repoOwner').value;
+      const repoName = document.getElementById('repoName').value;
+      const prNumber = document.getElementById('prNumber').value;
+  
+      const responseDiv = document.getElementById('response');
+  
+      try {
+        const response = await fetch('http://localhost:5000/api/scan/pr', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            repoOwner,
+            repoName,
+            prNumber,
+          }),
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to fetch scan results');
+        }
+  
+        const data = await response.json();
+        responseDiv.classList.remove('error');
+        responseDiv.classList.add('success');
+        responseDiv.innerHTML = `<h3>Scan Successful!</h3><pre>${JSON.stringify(data, null, 2)}</pre>`;
+  
+      } catch (error) {
+        responseDiv.classList.remove('success');
+        responseDiv.classList.add('error');
+        responseDiv.innerHTML = `<h3>Error:</h3><p>${error.message}</p>`;
+      }
+  
+      responseDiv.style.display = 'block';  // Display the response section
+    });
+  </script>
+</body>
+</html>
